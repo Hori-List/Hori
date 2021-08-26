@@ -8,10 +8,15 @@ interface list {
   id: string;
   name: string;
   items: string[];
-  members: string[];
-  owner: string;
+}
+
+interface invitation {
+  id: string;
+  listName: string;
+  inviterName: string;
+  inviterEmail: string
 }
 
 export {
-  list, user,
+  list, user, invitation
 };
