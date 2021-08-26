@@ -10,9 +10,9 @@
     "@capacitor/cli": "^3.2.0",
     "@capacitor/core": "^3.2.0",
     "appwrite": "^3.2.0",
+    "pinia": "^2.0.0-rc.6",
     "vue": "^3.0.5",
-    "vue-router": "^4.0.11",
-    "vuex": "^4.0.2"
+    "vue-router": "^4.0.11"
   },
   "devDependencies": {
     "@types/node": "^16.6.2",
