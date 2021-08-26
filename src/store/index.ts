@@ -1,7 +1,12 @@
-import { createStore } from 'vuex';
+import { defineStore } from 'pinia';
+import { user, list, invitation } from '../interfaces';
 
-export const store = createStore({
-  state: {},
-  mutations: {},
-  actions: {},
+export const useStore = defineStore('main', {
+  state() {
+    return {
+      user: {} as user,
+      lists: [] as list[],
+      invitations: [] as invitation[],
+    };
+  },
 });
