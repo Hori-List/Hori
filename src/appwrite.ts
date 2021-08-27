@@ -23,11 +23,7 @@ appwrite.setEndpoint(endpoint).setProject(project);
  * @param name the name of the user
  */
 async function createAccount(email: string, password: string, name: string) {
-  return await appwrite.account.create(email, password, name).then((user) => {
-    return [user, null];
-  }, (err) => {
-    return [null, err];
-  });
+  return await appwrite.account.create(email, password, name);
 }
 
 async function login(email: string, password: string): Promise<user> {
@@ -69,12 +65,9 @@ async function logout() {
 async function createList(name: string) {
   const data = {
     name,
+    items: []
   };
-  return await appwrite.database.createDocument(listsCollection, data).then((res) => {
-    return [res, null];
-  }, (err) => {
-    return [null, err];
-  });
+  return await appwrite.database.createDocument(listsCollection, data);
 }
 
 /**
@@ -82,7 +75,6 @@ async function createList(name: string) {
  */
 function userId() {
   const store = useStore();
-  console.log(store.user.id);
   return store.user.id;
 }
 
@@ -114,7 +106,7 @@ async function getAcceptedIds() {
   const accepted = await getAcceptedInvites();
   const ids: string[] = [];
   accepted.forEach((doc: any) => {
-    ids.push(doc.$id);
+    ids.push(doc.listId);
   });
   return ids;
 }
@@ -157,7 +149,7 @@ async function getUserDataFromId(id: string) {
   const { documents } = await appwrite.database.listDocuments(usersCollection, [`user=${ id }`]).catch((err) => {
     throw err;
   }) as any;
-  return documents[1];
+  return documents[ 1 ];
 }
 
 /**
@@ -202,5 +194,5 @@ async function invite(email: string, listId: string) {
 }
 
 export {
-  appwrite, createList, login, logout, createAccount, invite, getUser, getLists, getInvitations
+  appwrite, createList, login, logout, createAccount, invite, getUser, getLists, getInvitations,
 };
