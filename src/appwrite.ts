@@ -41,13 +41,11 @@ async function login(email: string, password: string): Promise<user> {
 async function getUser() {
   const user: any = await appwrite.account.get().then((user) => {
     return user;
-  }).catch((err) => {
-    console.log(err);
-  });
+  }).catch((err) => {});
   return {
-    id: user.$id,
-    email: user.email,
-    name: user.name,
+    id: user?.$id,
+    email: user?.email,
+    name: user?.name,
   };
 }
 
@@ -65,7 +63,7 @@ async function logout() {
 async function createList(name: string) {
   const data = {
     name,
-    items: []
+    items: [],
   };
   return await appwrite.database.createDocument(listsCollection, data);
 }
