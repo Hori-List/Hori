@@ -191,6 +191,69 @@ async function invite(email: string, listId: string) {
   return await appwrite.functions.createExecution(functionId, JSON.stringify(data));
 }
 
+/**
+ * adds a given item to a given list
+ * @param listId the id of the list
+ * @param item the item you want to add to the list
+ * @returns the appwrite response
+ */
+async function addItem(listId: string, item: string) {
+  let { items } = ( await appwrite.database.getDocument(listsCollection, listId) as any );
+
+  if (items && items.length > 0) {
+    items.push(item);
+  } else {
+    items = [item];
+  }
+  return await appwrite.database.updateDocument(listsCollection, listId, { items });
+}
+
+/**
+ * Removes a given item from a given list
+ * @param listId the id of the list
+ * @param item the item you want to remove
+ * @returns a promise containing the updated list
+ */
+async function removeItem(listId: string, item: string): Promise<list> {
+  let { items } = await appwrite.database.getDocument(listsCollection, listId) as any;
+  items = items.filter((value: string) => value !== item);
+  const list = await appwrite.database.updateDocument(listsCollection, listId, { items }) as any;
+  return {
+    id: list.$id,
+    name: list.name,
+    items: list.items,
+  };
+}
+
+/**
+ * updates the users email in the database
+ * @param email the new email
+ * @param password the users password
+ */
+async function updateEmail(email: string, password: string) {
+  return await appwrite.account.updateEmail(email, password);
+}
+
+/**
+ * updates the users name in the database
+ * @param name the new name
+ */
+async function updateName(name: string) {
+  return await appwrite.account.updateName(name);
+}
+
 export {
-  appwrite, createList, login, logout, createAccount, invite, getUser, getLists, getInvitations,
+  appwrite,
+  createList,
+  login,
+  logout,
+  createAccount,
+  invite,
+  getUser,
+  getLists,
+  getInvitations,
+  addItem,
+  removeItem,
+  updateName,
+  updateEmail,
 };
