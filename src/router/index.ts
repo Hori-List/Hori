@@ -16,6 +16,21 @@ const routes = [
     name: 'SignUp',
     component: () => import('../views/SignUp.vue'),
   },
+  {
+    path: '/lists',
+    name: 'Lists',
+    component: () => import('../views/Lists.vue'),
+  },
+  {
+    path: '/list/:id',
+    name: 'List',
+    component: () => import('../views/List.vue'),
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('../views/Settings.vue'),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),
