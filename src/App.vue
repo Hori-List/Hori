@@ -1,12 +1,12 @@
 <template>
-  <router-view v-slot="{ Component }">
+  <router-view v-slot="{ Component }" class="background min-h-screen min-w-screen">
     <template v-if="Component">
       <keep-alive>
         <suspense>
           <component :is="Component"></component>
           <template #fallback>
-            <div>
-              Loading...
+            <div class="background">
+              <p class="text">Loading...</p>
             </div>
           </template>
         </suspense>
