@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hori</string>
+    <string name="title_activity_main">Hori</string>
+    <string name="package_name">club.radmacher.hori</string>
+    <string name="custom_url_scheme">club.radmacher.hori</string>
+</resources>
