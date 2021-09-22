@@ -23,6 +23,7 @@ import { computed, defineComponent } from 'vue';
 import { useStore } from '../store';
 import { useRoute } from 'vue-router';
 import { addItem, getLists, removeItem } from '../appwrite';
+import { list } from '../interfaces';
 
 export default defineComponent({
   name: 'List',
@@ -55,7 +56,7 @@ export default defineComponent({
 
     const { id } = route.params;
 
-    const list = computed(() => store.lists.find(list => list.id === id));
+    const list = computed(() => store.lists.find(list => list.id === id) as list);
 
     return {
       id,
