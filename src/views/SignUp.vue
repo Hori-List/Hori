@@ -30,7 +30,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { createAccount } from '../appwrite';
+import { createAccount, sendVerificationEmail, login } from '../appwrite';
+import { useStore } from '../store';
 
 export default defineComponent({
   name: 'SignUp',
@@ -46,7 +47,7 @@ export default defineComponent({
   methods: {
     async signUp() {
       if (this.password !== this.confirmPassword) {
-        this.error = 'Passwords don\'t match.'
+        this.error = 'Passwords don\'t match.';
         return;
       }
       if (!this.email || !this.name || !this.password || !this.confirmPassword) {
@@ -57,10 +58,18 @@ export default defineComponent({
         this.error = err.message;
         console.log(err);
       });
+      await login(this.email, this.password).catch((err) => {
+        console.log(err);
+      });
+      await sendVerificationEmail().catch((err) => {
+        console.error('Could not send verification email.');
+        console.log(err);
+      });
+      await this.$router.push('/verify');
     },
     login() {
-      this.$router.push('/login')
-    }
+      this.$router.push('/login');
+    },
   },
 });
 </script>
