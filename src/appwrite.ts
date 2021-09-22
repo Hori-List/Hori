@@ -1,6 +1,7 @@
-import { Appwrite } from 'appwrite';
-import { list, user, invitation } from './interfaces';
-import { useStore } from './store';
+import {Appwrite} from 'appwrite';
+import {invitation, list, user} from './interfaces';
+import {useStore} from './store';
+import {AppwriteException, RealtimeResponse} from './types';
 
 const appwrite = new Appwrite();
 
@@ -23,37 +24,73 @@ appwrite.setEndpoint(endpoint).setProject(project);
  * @param name the name of the user
  */
 async function createAccount(email: string, password: string, name: string) {
-  return await appwrite.account.create(email, password, name);
+    return await appwrite.account.create(email, password, name);
 }
 
+/**
+ * sends a verification email to the user
+ */
+async function sendVerificationEmail() {
+    const url = import.meta.env.VITE_VERIFY_URL as string;
+    return await appwrite.account.createVerification(url);
+}
+
+/**
+ * creates a session for the user
+ * @param email the email of the user
+ * @param password the password of the user
+ */
 async function login(email: string, password: string): Promise<user> {
-  const user: any = await appwrite.account.createSession(email, password);
-  return {
-    id: user.$id,
-    email: user.email,
-    name: user.name,
-  };
+    const user: any = await appwrite.account.createSession(email, password);
+    return {
+        id: user.$id,
+        email: user.email,
+        name: user.name,
+    };
+}
+
+function handleRealtime() {
+    const store = useStore();
+    appwrite.subscribe(`collections.${listsCollection}.documents`, (response: RealtimeResponse) => {
+        switch (response.event) {
+            case 'database.documents.create':
+                // user created a new list
+                break;
+            default:
+                break;
+        }
+        console.log(response);
+    });
+    appwrite.subscribe(`collections.${invitationsCollection}.documents`, (response: RealtimeResponse) => {
+        console.log(response);
+        if (response.event === 'database.documents.create') {
+            // user has either been invited to a list or created a new list
+            store.updateLists();
+        }
+    });
 }
 
 /**
  * retrieves the user object
  */
 async function getUser() {
-  const user: any = await appwrite.account.get().then((user) => {
-    return user;
-  }).catch((err) => {});
-  return {
-    id: user?.$id,
-    email: user?.email,
-    name: user?.name,
-  };
+    const user: any = await appwrite.account.get().then((user: any) => {
+        return user;
+    }).catch((err: AppwriteException) => {
+    });
+    return {
+        id: user?.$id,
+        email: user?.email,
+        name: user?.name,
+        verified: user?.emailVerification,
+    };
 }
 
 /**
  * logs the user out
  */
 async function logout() {
-  return await appwrite.account.deleteSession('current');
+    return await appwrite.account.deleteSession('current');
 }
 
 /**
@@ -61,19 +98,19 @@ async function logout() {
  * @param name the name of the list
  */
 async function createList(name: string) {
-  const data = {
-    name,
-    items: [],
-  };
-  return await appwrite.database.createDocument(listsCollection, data);
+    const data = {
+        name,
+        items: [],
+    };
+    return await appwrite.database.createDocument(listsCollection, data);
 }
 
 /**
  * gets the users id from the store
  */
 function userId() {
-  const store = useStore();
-  return store.user.id;
+    const store = useStore();
+    return store.user.id;
 }
 
 /**
@@ -81,32 +118,32 @@ function userId() {
  * WARNING: this contains lists that the user might not want to see.
  */
 async function getAllLists() {
-  const { documents } = await appwrite.database.listDocuments(listsCollection).catch((err) => {
-    throw err;
-  }) as any;
-  return documents;
+    const {documents} = await appwrite.database.listDocuments(listsCollection).catch((err: AppwriteException) => {
+        throw err;
+    }) as any;
+    return documents;
 }
 
 /**
  * returns all the the accepted invitations
  */
 async function getAcceptedInvites() {
-  const { documents } = await appwrite.database.listDocuments(invitationsCollection, [
-    `status=accepted`, `inviteeId=${ userId() }`,
-  ]);
-  return documents;
+    const {documents} = await appwrite.database.listDocuments(invitationsCollection, [
+        `status=accepted`, `inviteeId=${userId()}`,
+    ]);
+    return documents;
 }
 
 /**
  * get the id of all accepted lists
  */
 async function getAcceptedIds() {
-  const accepted = await getAcceptedInvites();
-  const ids: string[] = [];
-  accepted.forEach((doc: any) => {
-    ids.push(doc.listId);
-  });
-  return ids;
+    const accepted = await getAcceptedInvites();
+    const ids: string[] = [];
+    accepted.forEach((doc: any) => {
+        ids.push(doc.listId);
+    });
+    return ids;
 }
 
 /**
@@ -114,29 +151,29 @@ async function getAcceptedIds() {
  * lists that have not been accepted will be filtered out.
  */
 async function getLists() {
-  const accepted = await getAcceptedIds();
-  const all = await getAllLists();
-  const lists: list[] = [];
-  all.forEach((doc: any) => {
-    if (accepted.includes(doc.$id)) {
-      lists.push({
-        id: doc.$id,
-        name: doc.name,
-        items: doc.items,
-      });
-    }
-  });
-  return lists;
+    const accepted = await getAcceptedIds();
+    const all = await getAllLists();
+    const lists: list[] = [];
+    all.forEach((doc: any) => {
+        if (accepted.includes(doc.$id)) {
+            lists.push({
+                id: doc.$id,
+                name: doc.name,
+                items: doc.items,
+            });
+        }
+    });
+    return lists;
 }
 
 /**
  * returns all the invitations that are yet to be accepted
  */
 async function getOpenInvitations() {
-  const { documents } = await appwrite.database.listDocuments(invitationsCollection, [
-    `status=invited`, `inviteeId=${ userId() }`,
-  ]);
-  return documents;
+    const {documents} = await appwrite.database.listDocuments(invitationsCollection, [
+        `status=invited`, `inviteeId=${userId()}`,
+    ]);
+    return documents;
 }
 
 /**
@@ -144,10 +181,10 @@ async function getOpenInvitations() {
  * @param id the id of the user
  */
 async function getUserDataFromId(id: string) {
-  const { documents } = await appwrite.database.listDocuments(usersCollection, [`user=${ id }`]).catch((err) => {
-    throw err;
-  }) as any;
-  return documents[ 1 ];
+    const {documents} = await appwrite.database.listDocuments(usersCollection, [`user=${id}`]).catch((err: AppwriteException) => {
+        throw err;
+    }) as any;
+    return documents[1];
 }
 
 /**
@@ -155,26 +192,26 @@ async function getUserDataFromId(id: string) {
  * @param id the id of the list
  */
 async function getListFromId(id: string): Promise<any> {
-  return await appwrite.database.getDocument(listsCollection, id);
+    return await appwrite.database.getDocument(listsCollection, id);
 }
 
 /**
  * returns all open invitations
  */
 async function getInvitations() {
-  const openInvitations = await getOpenInvitations();
-  const invitations: invitation[] = [];
-  for(const inv of openInvitations) {
-    const inviterData = await getUserDataFromId(inv.inviterId);
-    const listData = await getListFromId(inv.listId);
-    invitations.push({
-      id: inv.$id,
-      inviterEmail: inviterData.email,
-      inviterName: inviterData.name,
-      listName: listData.name,
-    });
-  }
-  return invitations;
+    const openInvitations = await getOpenInvitations();
+    const invitations: invitation[] = [];
+    for (const inv of openInvitations) {
+        const inviterData = await getUserDataFromId(inv.inviterId);
+        const listData = await getListFromId(inv.listId);
+        invitations.push({
+            id: inv.$id,
+            inviterEmail: inviterData.email,
+            inviterName: inviterData.name,
+            listName: listData.name,
+        });
+    }
+    return invitations;
 }
 
 /**
@@ -183,12 +220,12 @@ async function getInvitations() {
  * @param listId the id of the list the user will be invited to
  */
 async function invite(email: string, listId: string) {
-  const data = {
-    email,
-    listId,
-  };
-  const functionId = import.meta.env.VITE_APP_INVITATION_FUNCTION as string;
-  return await appwrite.functions.createExecution(functionId, JSON.stringify(data));
+    const data = {
+        email,
+        listId,
+    };
+    const functionId = import.meta.env.VITE_APP_INVITATION_FUNCTION as string;
+    return await appwrite.functions.createExecution(functionId, JSON.stringify(data));
 }
 
 /**
@@ -198,14 +235,14 @@ async function invite(email: string, listId: string) {
  * @returns the appwrite response
  */
 async function addItem(listId: string, item: string) {
-  let { items } = ( await appwrite.database.getDocument(listsCollection, listId) as any );
+    let {items} = (await appwrite.database.getDocument(listsCollection, listId) as any);
 
-  if (items && items.length > 0) {
-    items.push(item);
-  } else {
-    items = [item];
-  }
-  return await appwrite.database.updateDocument(listsCollection, listId, { items });
+    if (items && items.length > 0) {
+        items.push(item);
+    } else {
+        items = [item];
+    }
+    return await appwrite.database.updateDocument(listsCollection, listId, {items});
 }
 
 /**
@@ -215,14 +252,14 @@ async function addItem(listId: string, item: string) {
  * @returns a promise containing the updated list
  */
 async function removeItem(listId: string, item: string): Promise<list> {
-  let { items } = await appwrite.database.getDocument(listsCollection, listId) as any;
-  items = items.filter((value: string) => value !== item);
-  const list = await appwrite.database.updateDocument(listsCollection, listId, { items }) as any;
-  return {
-    id: list.$id,
-    name: list.name,
-    items: list.items,
-  };
+    let {items} = await appwrite.database.getDocument(listsCollection, listId) as any;
+    items = items.filter((value: string) => value !== item);
+    const list = await appwrite.database.updateDocument(listsCollection, listId, {items}) as any;
+    return {
+        id: list.$id,
+        name: list.name,
+        items: list.items,
+    };
 }
 
 /**
@@ -231,7 +268,7 @@ async function removeItem(listId: string, item: string): Promise<list> {
  * @param password the users password
  */
 async function updateEmail(email: string, password: string) {
-  return await appwrite.account.updateEmail(email, password);
+    return await appwrite.account.updateEmail(email, password);
 }
 
 /**
@@ -239,21 +276,33 @@ async function updateEmail(email: string, password: string) {
  * @param name the new name
  */
 async function updateName(name: string) {
-  return await appwrite.account.updateName(name);
+    return await appwrite.account.updateName(name);
+}
+
+/**
+ * confirms the users email address
+ * @param userId the id of the user
+ * @param secret the users secret
+ */
+async function confirmEmail(userId: string, secret: string) {
+    return await appwrite.account.updateVerification(userId, secret);
 }
 
 export {
-  appwrite,
-  createList,
-  login,
-  logout,
-  createAccount,
-  invite,
-  getUser,
-  getLists,
-  getInvitations,
-  addItem,
-  removeItem,
-  updateName,
-  updateEmail,
+    appwrite,
+    createList,
+    login,
+    logout,
+    createAccount,
+    sendVerificationEmail,
+    invite,
+    getUser,
+    getLists,
+    getInvitations,
+    addItem,
+    removeItem,
+    updateName,
+    updateEmail,
+    confirmEmail,
+    handleRealtime,
 };
