@@ -2,11 +2,13 @@
   <div class="min-h-screen">
     <h1 class="header">Good morning, {{user.name}}!</h1>
     <Seperator text="Your lists" class="mt-6" />
-    <div v-for="(list, index) in lists" class="flex items-center">
-      <div v-if="list.item && list.items.length > 0">
-        <Bubble :number="list.items.length" class="ml-6" />
+    <div v-for="(list, index) in lists" class="flex items-center" :key="list.id">
+      <div :key="list.id">
+        <div v-if="list.items && list.items.length > 0">
+          <Bubble :number="list.items.length" class="ml-6" />
+        </div>
+        <router-link :to="'/list/' + list.id" class="list">{{ list.name }}</router-link>
       </div>
-      <router-link :to="'/list/' + list.id" class="list">{{ list.name }}</router-link>
     </div>
     <!--<Seperator text="Invitations" class="mt-6" />-->
     <div>
