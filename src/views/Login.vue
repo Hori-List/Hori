@@ -42,6 +42,10 @@ export default defineComponent({
       });
       const user = await getUser();
       if (user.id) {
+        if (!user.verified) {
+          await this.$router.push('/verify');
+          return;
+        }
         await store.$patch({ user });
         await store.updateLists();
         await this.$router.push('/lists');
