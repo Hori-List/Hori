@@ -1,27 +1,68 @@
 import { createApp } from 'vue';
-import App from './App.vue';
+import Vue from './App.vue';
 import router from './router';
 import { createPinia } from 'pinia'
 import 'virtual:windi.css';
 import { useStore } from './store';
-import { getInvitations, getLists, getUser } from './appwrite';
+import {confirmEmail, getInvitations, getLists, getUser, handleRealtime} from './appwrite';
+import { App, URLOpenListenerEvent } from '@capacitor/app'
 
-createApp(App).use(router).use(createPinia()).mount('#app');
+createApp(Vue).use(router).use(createPinia()).mount('#app');
+App.addListener('appUrlOpen', async function (event: URLOpenListenerEvent) {
+  const url = import.meta.env.VITE_VERIFY_URL;
+  console.log(url);
+  const parameterString = event.url.split(`${url}?`);
+  console.log(event.url);
+  console.log(parameterString);
+  if (!parameterString) { // the app was launched without any parameters or from different domain
+    await home();
+    return;
+  }
+  const parameters = parameterString[1].split('&');
+  console.log(parameterString[0]);
+  if (!parameters || parameters.length < 3) { // the app was not launched with all the required parameters
+    await home();
+    return;
+  }
+
+  let userId: string = '';
+  let secret: string = '';
+  parameters.forEach((parameter) => {
+    const parts = parameter.split('=');
+    if (parts[0] === 'secret') {
+      secret = parts[1] as string;
+    } else if (parts[0] === 'userId') {
+      userId = parts[1] as string;
+    }
+  });
+
+  console.log()
+
+  if (!userId || !secret) { //one or more parameters are missing
+    await home();
+    return;
+  }
+
+  const confirmation = await confirmEmail(userId, secret);
+  home();
+  console.log(confirmation);
+  await router.push('/lists');
+});
 
 async function home() {
   // set theme
-  if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
-
+  document.documentElement.classList.add('dark')
 
   const store = useStore();
 
   const user = await getUser();
   if (user.id) {
     await store.$patch({ user });
+    if (!user.verified) {
+      await router.push('/verify');
+      return;
+    }
+    handleRealtime();
     const lists = await getLists();
     const invitations = await getInvitations();
     store.$patch({ lists, invitations });
