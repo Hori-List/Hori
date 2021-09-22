@@ -1,0 +1,6 @@
+{
+	"appId": "club.radmacher.hori",
+	"appName": "Hori",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}

@@ -1,0 +1,5 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { "namespace": "android_app", "package_name": "club.radmacher.hori",
+    "sha256_cert_fingerprints": ["09:E3:3B:2F:DF:CE:13:35:B2:E0:4D:78:1F:F0:FA:FA:10:F3:53:79:89:EA:74:1B:74:69:0D:B2:94:0E:B8:2E"] }
+}]
