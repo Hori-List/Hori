@@ -35,6 +35,7 @@ export default defineComponent({
   methods: {
     async newList(title: string) {
       await createList(title);
+      this.showPopUp = false;
     }
   },
   computed: {
