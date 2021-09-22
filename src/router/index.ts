@@ -31,6 +31,11 @@ const routes = [
     name: 'Settings',
     component: () => import('../views/Settings.vue'),
   },
+  {
+    path: '/verify',
+    name: 'Verify',
+    component: () => import('../views/VerifyEmail.vue'),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),
