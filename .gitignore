@@ -5,3 +5,5 @@ dist-ssr
 *.local
 .idea/
 .env
+resources/android
+resources/ios
