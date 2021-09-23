@@ -19,5 +19,7 @@ jobs:
       - run: npm ci && npm run build
       - run: npm run sync
       - run: npm run icons
+      - name: Set gradle permissions
+        run: chmod +x ./android/gradlew
       - name: Build Android app
         run: ./android/gradlew buildDebug
