@@ -23,9 +23,18 @@ platform :android do
     gradle(task: "compileDebugAndroidTestSources", project_dir: "android")
   end
 
-  desc "Assemble source and test APKs"
+  desc "Assemble APKs"
   lane :assemble do
-    gradle(task: "assembleDebug", project_dir: "android")
-    gradle(task: "assembleDebugAndroidTest", project_dir: "android")
+    gradle(
+        task: "assemble",
+        project_dir: "android",
+        properties: {
+            "android.injected.signing.store.file" => "/signing.keystore",
+            "android.injected.signing.store.password" => ENV['KEYSTORE_PASSWORD'],
+            "android.injected.signing.key.alias" => ENV['KEYSTORE_ALIAS'],
+            "android.injected.signing.key.password" => ENV['KEYSTORE_PASSWORD'],
+            "versionCode" => ENV['VERSION_CODE'],
+            "versionName" => ENV['VERSION_NAME']
+            })
   end
 end

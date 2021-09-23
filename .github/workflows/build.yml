@@ -96,6 +96,9 @@ jobs:
       - name: Install Dependencies
         run: gem install bundler && bundle install
 
+      - name: Write key file
+        run: echo ${{ secrets.KEYSTORE_FILE }} | xxd -r -p - > signing.keystore
+
       - name: Run Fastlane Compile Lane
         run: fastlane assemble
 
