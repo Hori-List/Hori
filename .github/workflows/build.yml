@@ -97,7 +97,7 @@ jobs:
         run: gem install bundler && bundle install
 
       - name: Run Fastlane Compile Lane
-        run: fastlane compile
+        run: fastlane assemble
 
       - name: Find files
         run: find android/ -name "*.apk"
