@@ -15,8 +15,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-        run: npm ci
-        run: npm run build
+      - run: npm ci && npm run build
       - name: Sync build with Android
         run: npm run sync
       - name: Copy resources to Android
