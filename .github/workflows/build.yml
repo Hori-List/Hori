@@ -28,7 +28,7 @@ jobs:
         with:
           path: ./node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-        
+
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts
@@ -74,6 +74,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: dist
+      
+      - name: Debug directory
+        run: ls
 
       - name: Synchronise build output to Android
         run: npm run sync
