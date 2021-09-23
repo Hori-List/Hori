@@ -30,11 +30,11 @@ platform :android do
         project_dir: "android",
         properties: {
             "android.injected.signing.store.file" => "/signing.keystore",
-            "android.injected.signing.store.password" => ENV['KEYSTORE_PASSWORD'],
-            "android.injected.signing.key.alias" => ENV['KEYSTORE_ALIAS'],
-            "android.injected.signing.key.password" => ENV['KEYSTORE_PASSWORD'],
-            "versionCode" => ENV['VERSION_CODE'],
-            "versionName" => ENV['VERSION_NAME']
+            "android.injected.signing.store.password" => "${{ secrets.KEYSTORE_PASSWORD }}",
+            "android.injected.signing.key.alias" => "${{ secrets.KEYSTORE_ALIAS }}",
+            "android.injected.signing.key.password" => "${{ secrets.KEYSTORE_PASSWORD }}",
+            "versionCode" => "1",
+            "versionName" => "1.0.0"
             })
   end
 end
