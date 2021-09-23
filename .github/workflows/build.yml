@@ -20,4 +20,4 @@ jobs:
       - run: npm run sync
       - run: npm run icons
       - name: Build Android app
-      - run: ./android/gradlew buildDebug
+        run: ./android/gradlew buildDebug
