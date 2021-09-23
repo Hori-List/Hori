@@ -100,6 +100,9 @@ jobs:
         run: echo ${{ secrets.KEYSTORE_FILE }} | xxd -r -p - > signing.keystore
 
       - name: Run Fastlane Compile Lane
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
         run: fastlane assemble
 
       - name: Find files
