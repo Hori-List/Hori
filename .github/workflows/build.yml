@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: '14'
       - run: npm ci && npm run build
-      - name: Sync build with Android
-        run: npm run sync
-      - name: Copy resources to Android
-        run: npm run icons
+      - run: npm run sync
+      - run: npm run icons
+      - name: Build Android app
+      - run: ./android/gradlew buildDebug
