@@ -97,7 +97,7 @@ jobs:
         run: gem install bundler && bundle install
 
       - name: Write key file
-        run: echo ${{ secrets.KEYSTORE_FILE }} | xxd -r -p - > signing.keystore
+        run: echo ${{ secrets.KEYSTORE_FILE }} | xxd -r -p - > signing.keystore && mv signing.keystore /signing.keystore
 
       - name: Run Fastlane Compile Lane
         env:
