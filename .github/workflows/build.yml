@@ -99,6 +99,9 @@ jobs:
       - name: Run Fastlane Compile Lane
         run: fastlane compile
 
+      - name: Find files
+        run: find android/ -name "*.apk"
+
       - name: Upload output folder
         uses: actions/upload-artifact@v2
         with:
