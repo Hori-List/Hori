@@ -96,7 +96,7 @@ jobs:
       - name: Decode Keystore
         env:
             ENCODED_STRING: ${{ secrets.KEYSTORE_FILE }}
-        run: echo $ENCODED_STRING | base64 -di > "/home/runner/signing.keystore
+        run: echo $ENCODED_STRING | base64 -di > /home/runner/signing.keystore
 
       - name: Run Fastlane Compile Lane
         env:
