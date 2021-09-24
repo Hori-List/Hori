@@ -75,9 +75,6 @@ jobs:
         with:
           name: dist
           path: dist
-      
-      - name: Debug directory
-        run: ls
 
       - name: Synchronise build output to Android
         run: npm run sync
@@ -99,14 +96,17 @@ jobs:
       - name: Write key file
         run: echo ${{ secrets.KEYSTORE_FILE }} | xxd -r -p - > /home/runner/signing.keystore
 
+      - name: List files
+        run: ls
+
+      - name: Verify keystore
+        run: keytool -v -list -keystore /home/runner/signing.keystore
+
       - name: Run Fastlane Compile Lane
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
         run: fastlane assemble
-
-      - name: Find files
-        run: find android/ -name "*.apk"
 
       - name: Upload output folder
         uses: actions/upload-artifact@v2
