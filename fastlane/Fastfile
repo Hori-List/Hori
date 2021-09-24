@@ -26,7 +26,7 @@ platform :android do
   desc "Assemble APKs"
   lane :assemble do
     gradle(
-        task: "assemble",
+        task: "build",
         project_dir: "android",
         properties: {
             "android.injected.signing.store.file" => "/home/runner/signing.keystore",
