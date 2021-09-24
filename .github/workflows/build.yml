@@ -94,7 +94,9 @@ jobs:
         run: gem install bundler && bundle install
 
       - name: Write key file
-        run: echo ${{ secrets.KEYSTORE_FILE }} > xxd -r -p - > /home/runner/signing.keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE }}" > signing.keystore.asc
+          gpg -d --passphrase "${{ secrets.GPG_PASSWORD }}" --batch signing.keystore.asc > /home/runner/signing.keystore
 
       - name: Run Fastlane Compile Lane
         env:
