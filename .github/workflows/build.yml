@@ -93,18 +93,6 @@ jobs:
       - name: Install Dependencies
         run: gem install bundler && bundle install
 
-      - name: Create ssh key
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-        run: echo ${{ secrets.SSH_KEY }} | base64 -d > /home/runner/signing.keystore
-
-      - name: Debug statement
-        run: ls
-
-      - name: List files
-        run: ls /home/runner/
-
-
       - name: Run Fastlane Compile Lane
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
