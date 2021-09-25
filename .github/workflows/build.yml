@@ -93,10 +93,20 @@ jobs:
       - name: Install Dependencies
         run: gem install bundler && bundle install
 
-      - name: Decode Keystore
+      - name: Create ssh key
         env:
-            ENCODED_STRING: ${{ secrets.KEYSTORE_FILE }}
-        run: echo $ENCODED_STRING | base64 -di > /home/runner/signing.keystore
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: echo $SSH_KEY > /home/runner/sshkey
+
+      - name: Debug statement
+        run: ls
+
+      - name: Download Keystore
+        env:
+            SSH_HOST: ${{ secrets.SSH_HOST }}
+            SSH_PORT: ${{ secrets.SSH_PORT }}
+            SSH_USER: ${{ secrets.SSH_USER }}
+        run: scp -i /home/runner/sshkey $SSH_USER@$SHH_HOST:$SSH_PORT:~/signing.keystore /home/runner/signing.keystore
 
       - name: Run Fastlane Compile Lane
         env:
