@@ -1,0 +1,103 @@
+name: Build
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+     - master
+
+jobs:
+  #######################################################
+  # Build Vue:
+  # Builds the Vue.JS app
+  ########################################################
+  build-vue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci --ignore-scripts
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vue.JS app
+        run: npm run build
+
+      - name: Upload dist folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist/
+
+
+
+
+  #######################################################
+  # Build Android:
+  # Builds the native Android app
+  ########################################################
+  build-android:
+    needs: build-vue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: modules-${{ hashFiles('package-lock.json') }}
+        
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci --ignore-scripts
+
+      - name: Download dist folder
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+      - name: Synchronise build output to Android
+        run: npm run sync
+
+      - name: Synchronise resources to Android
+        run: npm run icons
+
+      - name: Set gradle permissions
+        run: chmod +x ./android/gradlew
+
+      - name: Set up Ruby 2.6
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+
+      - name: Install Dependencies
+        run: gem install bundler && bundle install
+
+      - name: Run Fastlane Compile Lane
+        run: fastlane assemble
+
+      - name: Upload output folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path: android/app/build/outputs/apk
