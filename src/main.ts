@@ -10,16 +10,12 @@ import { App, URLOpenListenerEvent } from '@capacitor/app'
 createApp(Vue).use(router).use(createPinia()).mount('#app');
 App.addListener('appUrlOpen', async function (event: URLOpenListenerEvent) {
   const url = import.meta.env.VITE_VERIFY_URL;
-  console.log(url);
   const parameterString = event.url.split(`${url}?`);
-  console.log(event.url);
-  console.log(parameterString);
   if (!parameterString) { // the app was launched without any parameters or from different domain
     await home();
     return;
   }
   const parameters = parameterString[1].split('&');
-  console.log(parameterString[0]);
   if (!parameters || parameters.length < 3) { // the app was not launched with all the required parameters
     await home();
     return;
@@ -36,8 +32,6 @@ App.addListener('appUrlOpen', async function (event: URLOpenListenerEvent) {
     }
   });
 
-  console.log()
-
   if (!userId || !secret) { //one or more parameters are missing
     await home();
     return;
@@ -45,7 +39,6 @@ App.addListener('appUrlOpen', async function (event: URLOpenListenerEvent) {
 
   const confirmation = await confirmEmail(userId, secret);
   home();
-  console.log(confirmation);
   await router.push('/lists');
 });
 
