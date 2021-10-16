@@ -7,7 +7,7 @@
     "build:android": "npm run build && npx cap sync",
     "sync": "npx cap sync",
     "serve": "vite preview",
-    "icons": "cordova-res android"
+    "icons": "cordova-res android --skip-config --icon-foreground-trim --copy"
   },
   "dependencies": {
     "@capacitor/android": "^3.2.2",
