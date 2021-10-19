@@ -1,6 +1,10 @@
 <template>
   <div>
-    <h1 class="name py-2">{{ list.name }}</h1>
+    <div class="flex justify-between items-center">
+      <i-mdi-account-multiple-plus class="icon" />
+      <h1 class="name py-2">{{ list.name }}</h1>
+      <i-mdi-dots-vertical class="icon" />
+    </div>
     <div v-if="list.items">
       <div v-for="(item, index) in list.items" class="px-6" :key="index">
         <p class="item" @click="removeItem(item)" :key="item">{{ item }}</p>

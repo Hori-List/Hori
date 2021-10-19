@@ -10,8 +10,8 @@ import { App, URLOpenListenerEvent } from '@capacitor/app'
 createApp(Vue).use(router).use(createPinia()).mount('#app');
 App.addListener('appUrlOpen', async function (event: URLOpenListenerEvent) {
   const url = import.meta.env.VITE_VERIFY_URL;
-  const parameterString = event.url.split(`${url}?`);
-  if (!parameterString) { // the app was launched without any parameters or from different domain
+  const parameterString = event.url.split('?');
+  if (!parameterString[1]) { // the app was launched without any parameters or from different domain
     await home();
     return;
   }
